@@ -1,5 +1,11 @@
-class Output:
-    # TODO
+from abc import ABCMeta, abstractmethod
+from typing import Generic, TypeVar
+
+
+InputType = TypeVar("InputType")
+
+class Output(Generic[InputType], metaclass=ABCMeta):
     @staticmethod
-    def dump(topology: None) -> None:
+    @abstractmethod
+    def dump(input: InputType) -> None:
         pass

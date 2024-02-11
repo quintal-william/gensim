@@ -1,6 +1,6 @@
 from enum import Enum
 from random import choice
-from typing import Annotated
+from typing import Annotated, Optional
 
 import typer
 from rich import print
@@ -16,21 +16,21 @@ from ..version import VersionDefault, VersionOption
 from .generators.mesh import MeshTopologyGenerator
 from .inputs.json import JsonTopologyInput
 from .inputs.xml import XmlTopologyInput
+from .models.node import Node
 from .outputs.console import ConsoleTopologyOutput
 from .outputs.json import JsonTopologyOutput
 from .outputs.omnest import OmnestTopologyOutput
 from .outputs.xml import XmlTopologyOutput
-from typing import Optional
 
 
 topology_app = typer.Typer()
 
-generators: dict[str, type[Generator]] = {
+generators: dict[str, type[Generator[Node]]] = {
     "mesh": MeshTopologyGenerator,
     # "star": FullStarTopologyGenerator,
 }
 
-def select_generator(generator_name: Optional[str]) -> type[Generator]:
+def select_generator(generator_name: Optional[str]) -> type[Generator[Node]]:
     # Pick random generator if none specified
     if generator_name == None:
         generator_name = choice(list(generators.keys()))
@@ -56,14 +56,14 @@ class TopologyOutputType(str, Enum):
     XML = "xml"
     OMNEST = "omnest" # TODO ask for abstraction level (INET, LATENCY RATE, etc), and standalone or embedded
 
-outputs: dict[TopologyOutputType, type[Output]] = {
+outputs: dict[TopologyOutputType, type[Output[Node]]] = {
     TopologyOutputType.CONSOLE: ConsoleTopologyOutput,
     TopologyOutputType.JSON: JsonTopologyOutput,
     TopologyOutputType.XML: XmlTopologyOutput,
     TopologyOutputType.OMNEST: OmnestTopologyOutput,
 }
 
-def select_output(output_type: TopologyOutputType) -> type[Output]:
+def select_output(output_type: TopologyOutputType) -> type[Output[Node]]:
     try:
         output = outputs[output_type]
     except KeyError:
@@ -138,18 +138,18 @@ def topology_generate(
     generator = select_generator(generator_name)
     output = select_output(output_type)
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress:
-        progress.add_task(description="Generating...", total=None)
+    # with Progress(
+    #     SpinnerColumn(),
+    #     TextColumn("[progress.description]{task.description}"),
+    #     transient=True,
+    # ) as progress:
+    #     progress.add_task(description="Generating...", total=None)
 
-        logger.debug("Generating topology")
-        topology = generator.gen()
+    logger.debug("Generating topology")
+    topology = generator.gen()
 
-        logger.debug("Printing generated topology")
-        output.dump(topology)
+    logger.debug("Printing generated topology")
+    output.dump(topology) # type: ignore [arg-type]
 
     logger.debug("End command topology_generate")
 

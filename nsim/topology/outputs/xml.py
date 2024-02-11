@@ -1,5 +1,7 @@
 from nsim.output import Output
 
+from ..models.node import Node
 
-class XmlTopologyOutput(Output):
+
+class XmlTopologyOutput(Output[Node]):
     pass
