@@ -6,7 +6,6 @@ InputType = TypeVar("InputType")
 
 
 class Output(Generic[InputType], metaclass=ABCMeta):
-    @staticmethod
     @abstractmethod
-    def dump(input: InputType) -> None:
+    def dump(self, input: InputType) -> None:
         pass

@@ -7,8 +7,8 @@ from .node import Node
 
 
 class LeafType(Enum):
-    HOST = "HOST"
-    SWITCH = "SWITCH"
+    HOST = "Host"
+    SWITCH = "Switch"
 
 
 class Leaf(Node):

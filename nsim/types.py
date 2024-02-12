@@ -1,4 +1,6 @@
-from .node import Node
+from typing import Any
+
+from .topology.models.node import Node
 
 
 """
@@ -10,3 +12,8 @@ Connectivity = float
 Helper type that allows the user to pass in either a list of nodes, or tha number of LeafNodes that should be added to a topology
 """
 Nodes = int | list[Node]
+
+"""
+Helper type for working with json data
+"""
+Json = dict[str, Any]  # type: ignore [misc]

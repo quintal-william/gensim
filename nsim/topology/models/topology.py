@@ -2,7 +2,7 @@ import random
 
 from .leaf import Leaf, LeafType
 from .node import Node
-from .types import Nodes, Connectivity
+from ...types import Nodes, Connectivity
 
 
 class Topology(Node):

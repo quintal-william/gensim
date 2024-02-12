@@ -18,20 +18,20 @@ from .inputs.json import JsonTopologyInput
 from .models.node import Node
 from .outputs.xml import XmlTopologyOutput
 from .outputs.json import JsonTopologyOutput
-from .outputs.omnest import OmnestTopologyOutput
 from .generators.mesh import MeshTopologyGenerator
+from .generators.star import StarTopologyGenerator
 from .outputs.console import ConsoleTopologyOutput
 
 
 topology_app = typer.Typer()
 
-generators: dict[str, type[Generator[Node]]] = {
-    "mesh": MeshTopologyGenerator,
-    # "star": FullStarTopologyGenerator,
+generators: dict[str, Generator[Node]] = {
+    "mesh": MeshTopologyGenerator(),
+    "star": StarTopologyGenerator(),
 }
 
 
-def select_generator(generator_name: Optional[str]) -> type[Generator[Node]]:
+def select_generator(generator_name: Optional[str]) -> Generator[Node]:
     # Pick random generator if none specified
     if generator_name == None:
         generator_name = choice(list(generators.keys()))
@@ -58,18 +58,18 @@ class TopologyOutputType(str, Enum):
     CONSOLE = "console"
     JSON = "json"
     XML = "xml"
-    OMNEST = "omnest"  # TODO ask for abstraction level (INET, LATENCY RATE, etc), and standalone or embedded
+    OMNEST = "omnest"
 
 
-outputs: dict[TopologyOutputType, type[Output[Node]]] = {
-    TopologyOutputType.CONSOLE: ConsoleTopologyOutput,
-    TopologyOutputType.JSON: JsonTopologyOutput,
-    TopologyOutputType.XML: XmlTopologyOutput,
-    TopologyOutputType.OMNEST: OmnestTopologyOutput,
+outputs: dict[TopologyOutputType, Output[Node]] = {
+    TopologyOutputType.CONSOLE: ConsoleTopologyOutput(),
+    TopologyOutputType.JSON: JsonTopologyOutput(),
+    TopologyOutputType.XML: XmlTopologyOutput(),
+    # TopologyOutputType.OMNEST: OmnestTopologyOutput(),
 }
 
 
-def select_output(output_type: TopologyOutputType) -> type[Output[Node]]:
+def select_output(output_type: TopologyOutputType) -> Output[Node]:
     try:
         output = outputs[output_type]
     except KeyError:
@@ -159,6 +159,15 @@ def topology_generate(
             help="The output type the topology data is generated into",
         ),
     ] = TopologyOutputType.CONSOLE,
+    generator_config: Annotated[
+        Optional[str],
+        typer.Option(
+            "--generator-config",
+            "-c",
+            help="A JSON object with configuration options for the generator",
+            show_default=False,
+        ),
+    ] = None,
     version: VersionOption = VersionDefault,
     logging_level: LoggingLevelOption = LoggingLevelDefault,
 ) -> None:
@@ -172,18 +181,11 @@ def topology_generate(
     generator = select_generator(generator_name)
     output = select_output(output_type)
 
-    # with Progress(
-    #     SpinnerColumn(),
-    #     TextColumn("[progress.description]{task.description}"),
-    #     transient=True,
-    # ) as progress:
-    #     progress.add_task(description="Generating...", total=None)
-
     logger.debug("Generating topology")
-    topology = generator.gen()
+    topology = generator.gen(generator_config)
 
     logger.debug("Printing generated topology")
-    output.dump(topology)  # type: ignore [arg-type]
+    output.dump(topology)
 
     logger.debug("End command topology_generate")
 
