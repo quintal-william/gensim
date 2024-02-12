@@ -1,6 +1,6 @@
-gray==0.13.0
-mypy==1.5.1
-pyclean==2.7.5
+gray==0.14.0
+mypy==1.8.0
+pyclean==2.7.6
 pytest==7.4.2
 pytest-cov==4.1.0
 rich==12.6.0

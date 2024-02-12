@@ -9,6 +9,7 @@ from ...model import Model
 if TYPE_CHECKING:
     from .leaf import Leaf
 
+
 class Node(Model):
     """
     Represents anything that can be (sub-)connected to anything

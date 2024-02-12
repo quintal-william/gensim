@@ -1,4 +1,4 @@
-from rich import print
+from rich.console import Console
 
 from nsim.output import Output
 
@@ -12,46 +12,36 @@ class ConsoleTopologyOutput(Output[Node]):
     @staticmethod
     def __print(item_type: str, item_id: str, message: str, depth: int) -> None:
         print_whitespace = "  " * depth
-        print_type = fr"[cyan]\[{item_type}][/cyan]"
+        print_type = rf"[cyan]\[{item_type}][/cyan]"
         print_id = f"[yellow]{item_id}[/yellow]"
-        print(f"{print_whitespace}- {print_type} {print_id} {message}")
+        console = Console(highlight=False)
+        console.print(f"{print_whitespace}- {print_type} {print_id} {message}", highlight=False)
 
     @staticmethod
     def __print_edge(edge: Edge, depth: int = 0) -> None:
-        e_id = edge.get_id()
-        dest_id = edge.get_destination().get_id()
+        e_bps = edge.get_bandwidth()
+        e_bandwidth = (
+            f"{(e_bps / 10**6):.0f} Mbps"
+            if e_bps < 10**9
+            else f"{(e_bps / 10**9):.0f} Gbps"
+        )
 
-def convert_to_readable_bandwidth(bps):
-    # Convert bps to Mbps and Gbps
-    mbps = bps / 10**6
-    gbps = bps / 10**9
-    
-    # Determine the most appropriate unit to display
-    if bps < 10**9:  # Less than 1 Gbps, display in Mbps
-        return f"{mbps:.2f} Mbps"
-    else:  # 1 Gbps or more, display in Gbps
-        return f"{gbps:.2f} Gbps"
+        e_dest = edge.get_destination()
+        e_dest_id = e_dest.get_id()
+        e_dest_type = e_dest.get_type().value
 
-# Example usage
-bps_values = [10000000, 100000000, 1000000000, 10000000000, 25000000000, 40000000000, 100000000000]
-
-# Convert and print each value
-for bps in bps_values:
-    readable_bandwidth = convert_to_readable_bandwidth(bps)
-    print(f"{bps} bps is equivalent to {readable_bandwidth}")
-
-        ConsoleTopologyOutput.__print(dest_id, e_id, f"({edge.get_bandwidth()}bps)", depth)
+        ConsoleTopologyOutput.__print(e_dest_type, e_dest_id, f"({e_bandwidth})", depth)
 
     @staticmethod
     def __print_leaf(leaf: Leaf, depth: int = 0) -> None:
-        l_type = str(leaf.get_type())
+        l_type = leaf.get_type().value
         l_id = leaf.get_id()
         l_edges = leaf.get_edges()
 
         if len(l_edges) == 0:
             ConsoleTopologyOutput.__print(l_type, l_id, "has no edges.", depth)
         else:
-            ConsoleTopologyOutput.__print(l_type, l_id, "has edges:", depth)
+            ConsoleTopologyOutput.__print(l_type, l_id, "has edges to:", depth)
             for edge in l_edges:
                 ConsoleTopologyOutput.__print_edge(edge, depth + 1)
 

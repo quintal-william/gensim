@@ -8,10 +8,11 @@ from ...model import Model
 if TYPE_CHECKING:
     from .leaf import Leaf
 
+
 class Edge(Model):
-    '''
+    """
     Represents the connection between two Leafs
-    '''
+    """
 
     __source: Leaf
     __destination: Leaf

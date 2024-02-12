@@ -7,6 +7,7 @@
 3. Enter the virtual environment by running either `.venv\Scripts\activate.bat` in the Windows Command Line, or `source .venv/bin/activate` in Bash.
 4. Install the dependencies in the virtual environment by running `pip install -r requirements.txt`
 5. Format and check the codebase using the `gray && mypy && python -m pytest --cov=nsim tests` command
+7. If you wish to clean the repo of all generated artifacts, use: `pyclean . && rmdir /s /q .mypy_cache .venv` in the Windows Command Line, or `pyclean . && rm -rf .mypy_cache .venv` in Bash.
 6. Have a look at the CLI usage docs by running `python -m nsim --help`
 
 ## Running OMNEST Output

@@ -2,13 +2,13 @@ import random
 
 from .leaf import Leaf, LeafType
 from .node import Node
-from .types import Connectivity, Nodes
+from .types import Nodes, Connectivity
 
 
 class Topology(Node):
-    '''
+    """
     Data structure that holds nested structures of LeafNodes
-    '''
+    """
 
     __connectivity: Connectivity
     __nodes: list[Node]
@@ -42,13 +42,13 @@ class Topology(Node):
     def connect(self, node_a: Node, node_b: Node, bandwidth: int | None = None) -> None:
         if bandwidth == None:
             bandwidths = [
-                10000000, # 10BASE-T, 10 Mbps, rarely used in modern settings
-                100000000, # 100BASE-TX, 100 Mbps, in use for some home networks
-                1000000000, # 1000BASE-T, 1 Gbps, common in modern home networks
-                10000000000, # 10GBASE-T, 10 Gbps, used in enterprise networks and data centers
-                25000000000, # 25GBASE-T, 25 Gbps, increasingly adopted in data centers
-                40000000000, # 40GBASE-T, 40 Gbps, used in high-speed backbones of data center networks
-                100000000000, # 100GBASE-T, 100 Gbps, used in large data centers and internet backbones
+                10000000,  # 10BASE-T, 10 Mbps, rarely used in modern settings
+                100000000,  # 100BASE-TX, 100 Mbps, in use for some home networks
+                1000000000,  # 1000BASE-T, 1 Gbps, common in modern home networks
+                10000000000,  # 10GBASE-T, 10 Gbps, used in enterprise networks and data centers
+                25000000000,  # 25GBASE-T, 25 Gbps, increasingly adopted in data centers
+                40000000000,  # 40GBASE-T, 40 Gbps, used in high-speed backbones of data center networks
+                100000000000,  # 100GBASE-T, 100 Gbps, used in large data centers and internet backbones
             ]
             bandwidth = random.choice(bandwidths)
 
@@ -57,7 +57,7 @@ class Topology(Node):
 
         for a in nodes_a:
             for b in nodes_b:
-                if (self.__connectivity > random.random()):
+                if self.__connectivity > random.random():
                     bandwidth = random.choice(bandwidths)
                     a.add_edge(b, bandwidth)
                     b.add_edge(a, bandwidth)
