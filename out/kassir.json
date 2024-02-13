@@ -1,2 +1,0 @@
-[Warning]: Value was provided in generator_options, but not a valid integer with value >= 0 and < 100,000. Skipping.
-Please enter the number of nodes `number_of_nodes` (a valid integer with value >= 0 and < 100,000): 
