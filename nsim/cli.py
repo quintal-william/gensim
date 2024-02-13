@@ -18,6 +18,6 @@ def main(
     logging_level: LoggingLevelOption = LoggingLevelDefault,
 ) -> None:
     """
-    A CLI tool to generate and transform network topologies and traffic data for the DSE2.0 research project
+    A Python command-line interface for randomly generating and converting complex network topology and traffic data for the DSE2.0 research project
     """
     logger.debug(f"Set config to: {get_config().to_json()}")

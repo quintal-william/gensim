@@ -4,7 +4,7 @@ from .node import Node
 
 class Topology(Node):
     """
-    Data structure that holds nested structures of LeafNodes
+    Data structure that holds nested structures of Leaf nodes
     """
 
     __nodes: list[Node] = []

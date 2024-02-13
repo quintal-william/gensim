@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class Edge(Model):
     """
-    Represents the connection between two Leafs
+    Represents the connection between two Leaf nodes
     """
 
     __source: Leaf

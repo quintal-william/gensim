@@ -9,11 +9,11 @@ from .util import Json, Connectivity
 from .logger import logger
 
 
-InputType = TypeVar("InputType")
-GeneratorType = TypeVar("GeneratorType")
+TInputType = TypeVar("TInputType")
+TGeneratorType = TypeVar("TGeneratorType")
 
 
-class Generator(Generic[GeneratorType], metaclass=ABCMeta):
+class Generator(Generic[TGeneratorType], metaclass=ABCMeta):
     generator_options: str | None
 
     def _get_input(
@@ -21,9 +21,9 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
         variable_name: str,
         input_text: str,
         validate_text: str,
-        parse: Callable[[str], InputType],
-        validate: Callable[[InputType], bool],
-    ) -> InputType:
+        parse: Callable[[str], TInputType],
+        validate: Callable[[TInputType], bool],
+    ) -> TInputType:
         logger.debug(f"Collecting input for `{variable_name}`")
 
         if self.generator_options is not None:
@@ -119,12 +119,12 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
         logger.debug(f"Set connectivity to {connectivity}")
         return connectivity
 
-    def run_super(self, generator_options: str | None) -> GeneratorType:
+    def run_super(self, generator_options: str | None) -> TGeneratorType:
         self.generator_options = generator_options
         result = self.run()
         self.generator_options = None
         return result
 
     @abstractmethod
-    def run(self) -> GeneratorType:
+    def run(self) -> TGeneratorType:
         pass

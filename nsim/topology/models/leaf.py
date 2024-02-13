@@ -28,9 +28,9 @@ class Leaf(Node):
     __edges: list[Edge]
     __type: LeafType
 
-    def __init__(self, id: str, type: LeafType) -> None:
-        super().__init__(id)
-        self.__type = type
+    def __init__(self, leaf_id: str, leaf_type: LeafType) -> None:
+        super().__init__(leaf_id)
+        self.__type = leaf_type
         self.__edges = []
 
     def flatten(self) -> list[Leaf]:

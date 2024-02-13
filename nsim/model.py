@@ -5,8 +5,8 @@ class Model:
 
     __id: str
 
-    def __init__(self, id: str) -> None:
-        self.__id = id
+    def __init__(self, model_id: str) -> None:
+        self.__id = model_id
 
     def get_id(self) -> str:
         return self.__id

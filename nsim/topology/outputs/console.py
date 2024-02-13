@@ -1,6 +1,4 @@
-from rich.console import Console
-
-from nsim.output import Output
+from nsim.output import ConsoleOutput
 
 from ..models.edge import Edge
 from ..models.leaf import Leaf
@@ -8,17 +6,7 @@ from ..models.node import Node
 from ..models.topology import Topology
 
 
-class ConsoleTopologyOutput(Output[Node]):
-    def __print(self, item_type: str, item_id: str, message: str, depth: int) -> None:
-        print_whitespace = "  " * depth
-        print_type = rf"[cyan]\[{item_type}][/cyan]"
-        print_id = f"[yellow]{item_id}[/yellow]"
-        console = Console(highlight=False)
-        console.print(
-            f"{print_whitespace}- {print_type} {print_id} {message}",
-            highlight=False,
-        )
-
+class ConsoleTopologyOutput(ConsoleOutput[Node]):
     def __print_edge(self, edge: Edge, depth: int = 0) -> None:
         e_bps = edge.get_bandwidth()
         e_bandwidth = (
@@ -31,7 +19,7 @@ class ConsoleTopologyOutput(Output[Node]):
         e_dest_id = e_dest.get_id()
         e_dest_type = e_dest.get_type().value
 
-        self.__print(e_dest_type, e_dest_id, f"({e_bandwidth})", depth)
+        self._print(e_dest_type, e_dest_id, f"({e_bandwidth})", depth)
 
     def __print_leaf(self, leaf: Leaf, depth: int = 0) -> None:
         l_type = leaf.get_type().value
@@ -39,9 +27,9 @@ class ConsoleTopologyOutput(Output[Node]):
         l_edges = leaf.get_edges()
 
         if len(l_edges) == 0:
-            self.__print(l_type, l_id, "has no edges.", depth)
+            self._print(l_type, l_id, "has no edges.", depth)
         else:
-            self.__print(l_type, l_id, "has edges to:", depth)
+            self._print(l_type, l_id, "has edges to:", depth)
             for edge in l_edges:
                 self.__print_edge(edge, depth + 1)
 
@@ -51,9 +39,9 @@ class ConsoleTopologyOutput(Output[Node]):
         t_nodes = topology.get_nodes()
 
         if len(t_nodes) == 0:
-            self.__print(t_type, t_id, "has no nodes.", depth)
+            self._print(t_type, t_id, "has no nodes.", depth)
         else:
-            self.__print(t_type, t_id, "has nodes:", depth)
+            self._print(t_type, t_id, "has nodes:", depth)
             for node in t_nodes:
                 self.__print_node(node, depth + 1)
 

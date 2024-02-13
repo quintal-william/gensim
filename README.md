@@ -1,5 +1,7 @@
 # NSIM CLI
 
+A Python command-line interface for randomly generating and converting complex network topology and traffic data for the DSE2.0 research project.
+
 ## Set up
 
 1. Install Python 3.11.2 in the Software Center
