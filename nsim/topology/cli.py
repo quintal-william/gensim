@@ -4,7 +4,6 @@ from typing import Optional, Annotated
 
 import typer
 from rich import print
-from rich.progress import Progress, TextColumn, SpinnerColumn
 
 from nsim.input import Input
 from nsim.output import Output
@@ -87,13 +86,13 @@ class TopologyInputType(str, Enum):
     XML = "xml"
 
 
-inputs: dict[TopologyInputType, type[Input]] = {
-    TopologyInputType.JSON: JsonTopologyInput,
-    TopologyInputType.XML: XmlTopologyInput,
+inputs: dict[TopologyInputType, Input[Node]] = {
+    TopologyInputType.JSON: JsonTopologyInput(),
+    TopologyInputType.XML: XmlTopologyInput(),
 }
 
 
-def select_input(input_type: TopologyInputType) -> type[Input]:
+def select_input(input_type: TopologyInputType) -> Input[Node]:
     try:
         i = inputs[input_type]
     except KeyError:
@@ -217,39 +216,33 @@ def topology_convert(
         f"Start command topology_convert with config: {get_config().to_json()}",
     )
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress:
-        progress.add_task(description="Reading...", total=None)
+    logger.debug(f"Reading file: {input_file}")
+    split_input = input_file.split(".")
 
-        logger.debug(f"Reading file: {input_file}")
-        split_input = input_file.split(".")
+    if len(split_input) <= 1:
+        logger.error("File extension could not be read from input file.")
+        raise typer.Exit()
 
-        if len(split_input) <= 1:
-            logger.error("File extension could not be read from input file.")
+    ext = split_input[-1]
+
+    match ext:
+        case "xml":
+            logger.debug("Detected input file type XML")
+            i = select_input(TopologyInputType.XML)
+        case "json":
+            logger.debug("Detected input file type JSON")
+            i = select_input(TopologyInputType.JSON)
+        case _:
+            logger.error(
+                "Unknown input file type. Please supply an input file with a *.json, or *.xml file extension.",
+            )
             raise typer.Exit()
 
-        ext = split_input[-1]
+    output = select_output(output_type)
 
-        match ext:
-            case "xml":
-                logger.info("Detected input file type XML")
-                i = select_input(TopologyInputType.XML)
-            case "json":
-                logger.info("Detected input file type JSON")
-                i = select_input(TopologyInputType.JSON)
-            case _:
-                logger.error(
-                    "Unknown input file type. Please supply an input file with a *.json, or *.xml file extension.",
-                )
-                raise typer.Exit()
+    content = i.load(input_file)
 
-        content = i.load(input_file)
-
-        logger.debug("Writing")
-        o = select_output(output_type)
-        o.dump(content)
+    logger.debug("Printing converted topology")
+    output.dump(content)
 
     logger.debug("End command topology_convert")

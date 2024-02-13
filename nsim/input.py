@@ -1,8 +1,11 @@
 from abc import ABCMeta, abstractmethod
+from typing import Generic, TypeVar
 
 
-class Input(metaclass=ABCMeta):
-    @staticmethod
+OutputType = TypeVar("OutputType")
+
+
+class Input(Generic[OutputType], metaclass=ABCMeta):
     @abstractmethod
-    def load(path: str) -> None:
+    def load(self, path: str) -> OutputType:
         pass

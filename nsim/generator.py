@@ -31,10 +31,10 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
                 try:
                     opts: Json = json.loads(generator_options)
                     logger.debug("Successfully loaded generator_options")
-                except:
+                except Exception as e:
                     skip = True
                     logger.warn(
-                        "generator_options was provided, but is not valid JSON. Skipping.",
+                        f"generator_options was provided, but is not valid JSON: {e}. Skipping.",
                     )
             if not skip:
                 try:
@@ -50,7 +50,9 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
             if not skip:
                 try:
                     parsed_opt_value = parse(opt_value)
-                    logger.debug(f"Parsed input from generator_options: {parsed_opt_value}")
+                    logger.debug(
+                        f"Parsed input from generator_options: {parsed_opt_value}",
+                    )
                 except:
                     skip = True
                     logger.warn(
@@ -58,7 +60,9 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
                     )
             if not skip:
                 if validate(parsed_opt_value):
-                    logger.debug(f"Parsed input from generator_options passed validation")
+                    logger.debug(
+                        f"Parsed input from generator_options passed validation",
+                    )
                     return parsed_opt_value
                 else:
                     logger.warn(

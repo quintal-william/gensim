@@ -10,18 +10,16 @@ class Topology(Node):
     Data structure that holds nested structures of LeafNodes
     """
 
-    __connectivity: Connectivity
     __nodes: list[Node]
 
-    def __init__(self, name: str, nodes: Nodes, connectivity: Connectivity) -> None:
-        super().__init__(name)
+    def __init__(self, id: str, nodes: Nodes = []) -> None:
+        super().__init__(id)
 
-        self.__connectivity = connectivity
         self.__nodes = []
 
         if isinstance(nodes, int):
             for i in range(nodes):
-                leaf_node = Leaf(f"{name}-{i}", LeafType.HOST)
+                leaf_node = Leaf(f"{id}-{i}", LeafType.HOST)
                 self.add_node(leaf_node)
         else:
             for node in nodes:
@@ -39,7 +37,13 @@ class Topology(Node):
             leaf_nodes.extend(node.flatten())
         return leaf_nodes
 
-    def connect(self, node_a: Node, node_b: Node, bandwidth: int | None = None) -> None:
+    def connect(
+        self,
+        node_a: Node,
+        node_b: Node,
+        connectivity: Connectivity,
+        bandwidth: int | None = None,
+    ) -> None:
         if bandwidth == None:
             bandwidths = [
                 10000000,  # 10BASE-T, 10 Mbps, rarely used in modern settings
@@ -57,7 +61,7 @@ class Topology(Node):
 
         for a in nodes_a:
             for b in nodes_b:
-                if self.__connectivity > random.random():
+                if connectivity > random.random():
                     bandwidth = random.choice(bandwidths)
                     a.add_edge(b, bandwidth)
                     b.add_edge(a, bandwidth)

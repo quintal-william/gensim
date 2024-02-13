@@ -14,11 +14,11 @@ class MeshTopologyGenerator(Generator[Node]):
         number_of_nodes = self._get_input_topology_number_of_nodes(generator_options)
         connectivity = self._get_input_topology_connectivity(generator_options)
 
-        topology = Topology(name, number_of_nodes, connectivity)
+        topology = Topology(name, number_of_nodes)
         nodes = topology.get_nodes()
         while len(nodes) > 0:
             node_a = nodes.pop()
             for node_b in nodes:
-                topology.connect(node_a, node_b)
+                topology.connect(node_a, node_b, connectivity)
 
         return topology
