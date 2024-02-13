@@ -9,6 +9,7 @@ from nsim.input import Input
 from nsim.output import Output
 from nsim.generator import Generator
 
+from ..util import fatal
 from ..config import LoggingLevelOption, LoggingLevelDefault, get_config
 from ..logger import logger
 from ..version import VersionOption, VersionDefault
@@ -41,13 +42,11 @@ def select_generator(generator_name: Optional[str]) -> Generator[Node]:
         if generator_name:
             generator = generators[generator_name]
         else:
-            logger.error("No generator name given")
-            raise typer.Exit()
+            fatal("No generator name given")
     except KeyError:
-        logger.error(
+        fatal(
             f"Generator {generator_name} was not recognized. Please run `nsim topology generators` to see a list of valid generators",
         )
-        raise typer.Exit()
 
     logger.debug(f"Selected generator {generator_name}")
     return generator
@@ -72,10 +71,9 @@ def select_output(output_type: TopologyOutputType) -> Output[Node]:
     try:
         output = outputs[output_type]
     except KeyError:
-        logger.error(
+        fatal(
             f"Output type {output_type} was not recognized. Please use one of the allowed values",
         )
-        raise typer.Exit()
 
     logger.debug(f"Selected output type {output_type}")
     return output
@@ -96,10 +94,9 @@ def select_input(input_type: TopologyInputType) -> Input[Node]:
     try:
         i = inputs[input_type]
     except KeyError:
-        logger.error(
+        fatal(
             f"Input type {input_type} was not recognized. Please use one of the allowed values",
         )
-        raise typer.Exit()
 
     logger.debug(f"Selected input type {i}")
     return i
@@ -181,10 +178,10 @@ def topology_generate(
     output = select_output(output_type)
 
     logger.debug("Generating topology")
-    topology = generator.gen(generator_config)
+    topology = generator.run_super(generator_config)
 
     logger.debug("Printing generated topology")
-    output.dump(topology)
+    output.run_super(topology)
 
     logger.debug("End command topology_generate")
 
@@ -220,8 +217,7 @@ def topology_convert(
     split_input = input_file.split(".")
 
     if len(split_input) <= 1:
-        logger.error("File extension could not be read from input file.")
-        raise typer.Exit()
+        fatal("File extension could not be read from input file.")
 
     ext = split_input[-1]
 
@@ -233,16 +229,15 @@ def topology_convert(
             logger.debug("Detected input file type JSON")
             i = select_input(TopologyInputType.JSON)
         case _:
-            logger.error(
+            fatal(
                 "Unknown input file type. Please supply an input file with a *.json, or *.xml file extension.",
             )
-            raise typer.Exit()
 
     output = select_output(output_type)
 
-    content = i.load(input_file)
+    content = i.run_super(input_file)
 
     logger.debug("Printing converted topology")
-    output.dump(content)
+    output.run_super(content)
 
     logger.debug("End command topology_convert")

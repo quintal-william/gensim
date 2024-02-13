@@ -6,6 +6,9 @@ InputType = TypeVar("InputType")
 
 
 class Output(Generic[InputType], metaclass=ABCMeta):
+    def run_super(self, input: InputType) -> None:
+        self.run(input)
+
     @abstractmethod
-    def dump(self, input: InputType) -> None:
+    def run(self, input: InputType) -> None:
         pass

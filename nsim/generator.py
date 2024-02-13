@@ -5,7 +5,7 @@ from collections.abc import Callable
 
 import typer
 
-from .types import Json, Connectivity
+from .util import Json, Connectivity
 from .logger import logger
 
 
@@ -14,9 +14,10 @@ GeneratorType = TypeVar("GeneratorType")
 
 
 class Generator(Generic[GeneratorType], metaclass=ABCMeta):
+    generator_options: str | None
+
     def _get_input(
         self,
-        generator_options: str | None,
         variable_name: str,
         input_text: str,
         validate_text: str,
@@ -25,11 +26,11 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
     ) -> InputType:
         logger.debug(f"Collecting input for `{variable_name}`")
 
-        if generator_options is not None:
+        if self.generator_options is not None:
             skip = False
             if not skip:
                 try:
-                    opts: Json = json.loads(generator_options)
+                    opts: Json = json.loads(self.generator_options)
                     logger.debug("Successfully loaded generator_options")
                 except Exception as e:
                     skip = True
@@ -85,36 +86,30 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
             except ValueError:
                 logger.error(f"Input must be {validate_text}")
 
-    def _get_input_name(self, generator_options: str | None) -> str:
+    def _get_input_name(self) -> str:
         name = self._get_input(
-            generator_options,
             "name",
             "the name",
-            "a string with length > 0 and < 30",
+            "a string with length > 0 and <= 255",
             str,
-            lambda s: len(s) > 0 and len(s) < 30,
+            lambda s: len(s) > 0 and len(s) <= 255,
         )
         logger.debug(f"Set name to {name}")
         return name
 
-    def _get_input_topology_number_of_nodes(self, generator_options: str | None) -> int:
+    def _get_input_number_of_nodes(self) -> int:
         number_of_nodes = self._get_input(
-            generator_options,
             "number_of_nodes",
             "the number of nodes",
-            "a valid integer with value >= 0 and < 100,000",
+            "a valid integer with value >= 0 and < 1000",
             int,
-            lambda n: n >= 0 and n < 100000,
+            lambda n: n >= 0 and n < 1000,
         )
         logger.debug(f"Set number_of_nodes to {number_of_nodes}")
         return number_of_nodes
 
-    def _get_input_topology_connectivity(
-        self,
-        generator_options: str | None,
-    ) -> Connectivity:
+    def _get_input_connectivity(self) -> Connectivity:
         connectivity = self._get_input(
-            generator_options,
             "connectivity",
             "the connectivity",
             "a valid float with value >= 0 and <= 1",
@@ -124,6 +119,12 @@ class Generator(Generic[GeneratorType], metaclass=ABCMeta):
         logger.debug(f"Set connectivity to {connectivity}")
         return connectivity
 
+    def run_super(self, generator_options: str | None) -> GeneratorType:
+        self.generator_options = generator_options
+        result = self.run()
+        self.generator_options = None
+        return result
+
     @abstractmethod
-    def gen(self, generator_options: str | None) -> GeneratorType:
+    def run(self) -> GeneratorType:
         pass

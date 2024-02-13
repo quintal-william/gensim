@@ -2,7 +2,7 @@ import json
 
 from nsim.output import Output
 
-from ...types import Json
+from ...util import Json
 from ..models.edge import Edge
 from ..models.leaf import Leaf
 from ..models.node import Node
@@ -47,6 +47,6 @@ class JsonTopologyOutput(Output[Node]):
             return self.__make_topology_data(node)
         return self.__make_item(node.__class__.__name__, node.get_id())
 
-    def dump(self, node: Node) -> None:
+    def run(self, node: Node) -> None:
         data = self.__make_node_data(node)
         print(json.dumps(data, indent=2))

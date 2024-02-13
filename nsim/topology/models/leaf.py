@@ -4,11 +4,20 @@ from enum import Enum
 
 from .edge import Edge
 from .node import Node
+from ...util import fatal
 
 
 class LeafType(Enum):
     HOST = "Host"
     SWITCH = "Switch"
+
+
+def leaf_type_from_str(s: str) -> LeafType:
+    if s.lower() == "host":
+        return LeafType.HOST
+    if s.lower() == "switch":
+        return LeafType.SWITCH
+    fatal(f'String "{s}" could not be parsed to LeafType')
 
 
 class Leaf(Node):

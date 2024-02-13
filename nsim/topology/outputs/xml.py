@@ -49,7 +49,7 @@ class XmlTopologyOutput(Output[Node]):
             return self.__make_topology_element(node)
         return self.__make_element(node.__class__.__name__.lower(), node.get_id())
 
-    def dump(self, node: Node) -> None:
+    def run(self, node: Node) -> None:
         element = self.__make_node_element(node)
         ElementTree.indent(element)
         print(ElementTree.tostring(element, encoding="unicode"))

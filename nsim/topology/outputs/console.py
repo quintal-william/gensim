@@ -63,5 +63,5 @@ class ConsoleTopologyOutput(Output[Node]):
         elif isinstance(node, Topology):
             self.__print_topology(node, depth)
 
-    def dump(self, node: Node) -> None:
+    def run(self, node: Node) -> None:
         self.__print_node(node)

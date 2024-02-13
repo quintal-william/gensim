@@ -10,15 +10,17 @@ class StarTopologyGenerator(Generator[Node]):
     Generates a topology in which all hosts are connected the same switch at a rate according to some connectedness parameter c
     """
 
-    def gen(self, generator_options: str | None) -> Node:
-        name = self._get_input_name(generator_options)
-        number_of_nodes = self._get_input_topology_number_of_nodes(generator_options)
-        connectivity = self._get_input_topology_connectivity(generator_options)
+    def run(self) -> Node:
+        name = self._get_input_name()
+        number_of_nodes = self._get_input_number_of_nodes()
+        connectivity = self._get_input_connectivity()
 
-        topology = Topology(name, number_of_nodes)
+        topology = Topology(name)
         center = Leaf(f"{name}-center", LeafType.SWITCH)
-        for node in topology.get_nodes():
-            topology.connect(center, node, connectivity)
         topology.add_node(center)
+        for i in range(number_of_nodes):
+            leaf = Leaf(f"{name}-{i}", LeafType.HOST)
+            center.connect(leaf, connectivity)
+            topology.add_node(leaf)
 
         return topology
