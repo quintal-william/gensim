@@ -1,8 +1,8 @@
 from nsim.generator import Generator
 
+from .train import TrainTrafficGenerator
 from .poisson import PoissonTrafficGenerator
 from .constant import ConstantTrafficGenerator
-from .train import TrainTrafficGenerator
 from ..models.traffic import Traffic
 
 

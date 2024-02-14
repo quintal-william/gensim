@@ -1,8 +1,10 @@
+import random
+from typing import Callable
+
 from ...generator import Generator
+from ..models.arrival import Arrival
 from ..models.traffic import Traffic
 from ..models.traversal import Traversal
-from ..models.arrival import Arrival
-import random
 
 
 class TrainTrafficGenerator(Generator[Traffic]):
@@ -39,7 +41,7 @@ class TrainTrafficGenerator(Generator[Traffic]):
         traffic = Traffic(f"{node.get_id()}-traffic")
         traversal = Traversal(node)
 
-        r = lambda x: random.expovariate(1.0 / x)
+        r: Callable[[float], float] = lambda x: random.expovariate(1.0 / x)
 
         time = r(inter_train_time)
         while time < duration:

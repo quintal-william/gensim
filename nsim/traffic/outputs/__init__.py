@@ -1,8 +1,8 @@
 from nsim.output import Output, OutputType
 
-from .console import ConsoleTrafficOutput
-from .json import JsonTrafficOutput
 from .xml import XmlTrafficOutput
+from .json import JsonTrafficOutput
+from .console import ConsoleTrafficOutput
 from ..models.traffic import Traffic
 
 

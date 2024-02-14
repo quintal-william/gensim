@@ -2,12 +2,12 @@ from xml.etree import ElementTree
 
 from nsim.output import XmlOutput
 
-from ..models.traffic import Traffic
 from ..models.arrival import Arrival
+from ..models.traffic import Traffic
 
 
 class XmlTrafficOutput(XmlOutput[Traffic]):
-    def __make_arrival_element(self, arrival: Arrival) -> ElementTree.ElementTree:
+    def __make_arrival_element(self, arrival: Arrival) -> ElementTree.Element:
         attributes: dict[str, str] = {
             "time": str(arrival.get_time()),
             "source": arrival.get_source(),
@@ -16,9 +16,12 @@ class XmlTrafficOutput(XmlOutput[Traffic]):
         }
         arrival_type = arrival.__class__.__name__.lower()
         return self._make_element(arrival_type, arrival.get_id(), attributes)
-  
+
     def __make_traffic_element(self, traffic: Traffic) -> ElementTree.Element:
-        element = self._make_element(traffic.__class__.__name__.lower(), traffic.get_id())
+        element = self._make_element(
+            traffic.__class__.__name__.lower(),
+            traffic.get_id(),
+        )
         for arrival in traffic.get_arrivals():
             element.append(self.__make_arrival_element(arrival))
         return element
