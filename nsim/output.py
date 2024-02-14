@@ -28,7 +28,13 @@ class OutputType(str, Enum):
 
 
 class ConsoleOutput(Generic[TInputType], Output[TInputType]):
-    def _print(self, item_type: str, item_id: str, message: str, depth: int) -> None:
+    def _print(
+        self,
+        item_type: str,
+        item_id: str,
+        message: str = "",
+        depth: int = 0,
+    ) -> None:
         print_whitespace = "  " * depth
         print_type = rf"[cyan]\[{item_type}][/]"
         print_id = f"[yellow]{item_id}[/]"

@@ -3,7 +3,7 @@ from typing import Any, Generic, TypeVar, Optional, Annotated
 import typer
 from rich import print
 
-from .util import fatal
+from .util import select, get_file_path_extension
 from .input import Input, InputType
 from .config import get_config
 from .logger import logger
@@ -16,7 +16,7 @@ GeneratorOption = Annotated[
     typer.Option(
         "--generator",
         "-g",
-        help="The name of the generator (found using the `generators` command)",
+        help="The name of the generator (found using the `list-generators` command)",
     ),
 ]
 
@@ -52,27 +52,15 @@ InputFileArgument = Annotated[
 ]
 
 T = TypeVar("T")
-TKey = TypeVar("TKey")
-TValue = TypeVar("TValue")
 AnyInput = Input[Any, T]  # type: ignore [misc]
 
 
 class Commands(Generic[T]):
     @staticmethod
-    def __select(name: str, items: dict[TKey, TValue], key: TKey) -> TValue:
-        try:
-            item = items[key]
-        except KeyError:
-            fatal(
-                f"{name} '{key}' was not recognized. Please use one of the allowed values: {items.keys()}",
-            )
-
-        logger.debug(f"Selected {name} {item}")
-        return item
-
-    @staticmethod
-    def generators(generators: dict[str, Generator[T]]) -> None:
-        logger.debug(f"Start command generators with config: {get_config().to_json()}")
+    def list_generators(generators: dict[str, Generator[T]]) -> None:
+        logger.debug(
+            f"Start command list-generators with config: {get_config().to_json()}",
+        )
 
         for generator_name, generator in generators.items():
             doc = generator.__doc__
@@ -81,7 +69,7 @@ class Commands(Generic[T]):
             else:
                 print(f"[bold bright_yellow]{generator_name}[/]")
 
-        logger.debug("End command generators")
+        logger.debug("End command list-generators")
 
     @staticmethod
     def generate(
@@ -93,8 +81,8 @@ class Commands(Generic[T]):
     ) -> None:
         logger.debug(f"Start command generate with config: {get_config().to_json()}")
 
-        generator = Commands.__select("generator", generators, generator_name)
-        output = Commands.__select("output", outputs, output_type)
+        generator = select("generator", generators, generator_name)
+        output = select("output", outputs, output_type)
 
         logger.debug("Start generator")
         generated = generator.run_super(generator_config)
@@ -115,27 +103,8 @@ class Commands(Generic[T]):
     ) -> None:
         logger.debug(f"Start command convert with config: {get_config().to_json()}")
 
-        logger.debug(f"Reading file: {input_file}")
-        split_input = input_file.split(".")
-
-        if len(split_input) <= 1:
-            fatal("File extension could not be read from input file.")
-
-        ext = split_input[-1]
-
-        match ext:
-            case "xml":
-                logger.debug("Detected input file type XML")
-                i = Commands.__select("input", inputs, InputType.XML)
-            case "json":
-                logger.debug("Detected input file type JSON")
-                i = Commands.__select("input", inputs, InputType.JSON)
-            case _:
-                fatal(
-                    "Unknown input file type. Please supply an input file with a *.json, or *.xml file extension.",
-                )
-
-        output = Commands.__select("output", outputs, output_type)
+        i = select("input", inputs, InputType(get_file_path_extension(input_file)))
+        output = select("output", outputs, output_type)
 
         logger.debug("Start input")
         content = i.run_super(input_file)

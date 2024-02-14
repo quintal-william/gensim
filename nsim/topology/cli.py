@@ -1,13 +1,9 @@
-from typing import Any
-
 import typer
 
-from nsim.input import Input, InputType
-from nsim.output import Output, OutputType
-from nsim.generator import Generator
-
+from .inputs import topology_inputs
 from ..config import LoggingLevelOption, LoggingLevelDefault, get_config
 from ..logger import logger
+from .outputs import topology_outputs
 from ..version import VersionOption, VersionDefault
 from ..commands import (
     Commands,
@@ -18,36 +14,10 @@ from ..commands import (
     GeneratorConfigOption,
     GeneratorConfigDefault,
 )
-from .inputs.xml import XmlTopologyInput
-from .inputs.json import JsonTopologyInput
-from .models.node import Node
-from .outputs.xml import XmlTopologyOutput
-from .outputs.json import JsonTopologyOutput
-from .generators.mesh import MeshTopologyGenerator
-from .generators.star import StarTopologyGenerator
-from .outputs.console import ConsoleTopologyOutput
+from .generators import topology_generators
 
 
 topology_app = typer.Typer()
-
-generators: dict[str, Generator[Node]] = {
-    "mesh": MeshTopologyGenerator(),
-    "star": StarTopologyGenerator(),
-}
-
-outputs: dict[OutputType, Output[Node]] = {
-    OutputType.CONSOLE: ConsoleTopologyOutput(),
-    OutputType.JSON: JsonTopologyOutput(),
-    OutputType.XML: XmlTopologyOutput(),
-    # TopologyOutputType.OMNEST: OmnestTopologyOutput(),
-}
-
-TopologyInput = Input[Any, Node]  # type: ignore [misc]
-
-inputs: dict[InputType, TopologyInput] = {
-    InputType.JSON: JsonTopologyInput(),
-    InputType.XML: XmlTopologyInput(),
-}
 
 
 @topology_app.callback("topology")  # type: ignore [misc]
@@ -62,20 +32,20 @@ def topology_main(
     logger.debug("End command topology")
 
 
-@topology_app.command("generators")  # type: ignore [misc]
-def topology_generators(
+@topology_app.command("list-generators")  # type: ignore [misc]
+def topology_list_generators(
     version: VersionOption = VersionDefault,
     logging_level: LoggingLevelOption = LoggingLevelDefault,
 ) -> None:
     """
     Print a list of the available network topology generators
     """
-    Commands.generators(generators)
+    Commands.list_generators(topology_generators)
 
 
 @topology_app.command("generate")  # type: ignore [misc]
 def topology_generate(
-    generator_name: GeneratorOption,
+    generator: GeneratorOption,
     output_type: OutputTypeOption = OutputTypeDefault,
     generator_config: GeneratorConfigOption = GeneratorConfigDefault,
     version: VersionOption = VersionDefault,
@@ -85,9 +55,9 @@ def topology_generate(
     Generate a random network topology to some output type using a given generator
     """
     Commands.generate(
-        generators,
-        generator_name,
-        outputs,
+        topology_generators,
+        generator,
+        topology_outputs,
         output_type,
         generator_config,
     )
@@ -103,4 +73,4 @@ def topology_convert(
     """
     Convert a network topology from one type to another
     """
-    Commands.convert(inputs, input_file, outputs, output_type)
+    Commands.convert(topology_inputs, input_file, topology_outputs, output_type)

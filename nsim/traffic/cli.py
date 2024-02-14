@@ -1,20 +1,23 @@
-from enum import Enum
-from typing import Optional, Annotated
-
 import typer
 
+from .inputs import traffic_inputs
 from ..config import LoggingLevelOption, LoggingLevelDefault, get_config
 from ..logger import logger
+from .outputs import traffic_outputs
 from ..version import VersionOption, VersionDefault
+from ..commands import (
+    Commands,
+    GeneratorOption,
+    OutputTypeOption,
+    InputFileArgument,
+    OutputTypeDefault,
+    GeneratorConfigOption,
+    GeneratorConfigDefault,
+)
+from .generators import traffic_generators
 
 
 traffic_app = typer.Typer()
-
-
-class TrafficOutputType(str, Enum):
-    CONSOLE = "console"
-    JSON = "json"
-    XML = "xml"
 
 
 @traffic_app.callback("traffic")  # type: ignore [misc]
@@ -29,7 +32,7 @@ def traffic_main(
     logger.debug("End command traffic")
 
 
-@traffic_app.command("generators")  # type: ignore [misc]
+@traffic_app.command("list-generators")  # type: ignore [misc]
 def traffic_list_generators(
     version: VersionOption = VersionDefault,
     logging_level: LoggingLevelOption = LoggingLevelDefault,
@@ -37,68 +40,37 @@ def traffic_list_generators(
     """
     Print a list of the available network traffic generators
     """
-    logger.debug(
-        f"Start command traffic_generators with config: {get_config().to_json()}",
-    )
-    logger.error("This function is not implemented yet")
-    logger.debug("End command traffic_generate")
+    Commands.list_generators(traffic_generators)
 
 
 @traffic_app.command("generate")  # type: ignore [misc]
 def traffic_generate(
-    generator_name: Annotated[
-        Optional[str],
-        typer.Option(
-            "--generator",
-            "-g",
-            help="The name of the generator (found using the `generators` command). If not specified, it picks a random generator",
-            show_default=False,
-        ),
-    ] = None,
-    output_type: Annotated[
-        TrafficOutputType,
-        typer.Option(
-            "--output",
-            "-o",
-            help="The output type the traffic data is generated into",
-        ),
-    ] = TrafficOutputType.CONSOLE,
+    generator: GeneratorOption,
+    output_type: OutputTypeOption = OutputTypeDefault,
+    generator_config: GeneratorConfigOption = GeneratorConfigDefault,
     version: VersionOption = VersionDefault,
     logging_level: LoggingLevelOption = LoggingLevelDefault,
 ) -> None:
     """
-    Generate some random network traffic to some output type using a given generator
+    Generate random network traffic to some output type using a given generator
     """
-    logger.debug(
-        f"Start command traffic_generate with config: {get_config().to_json()}",
+    Commands.generate(
+        traffic_generators,
+        generator,
+        traffic_outputs,
+        output_type,
+        generator_config,
     )
-    logger.error("This function is not implemented yet")
-    logger.debug("End command traffic_generate")
 
 
 @traffic_app.command("convert")  # type: ignore [misc]
 def traffic_convert(
-    input_file: Annotated[
-        str,
-        typer.Argument(
-            help="The input file with traffic data that is to be converted",
-            show_default=False,
-        ),
-    ],
-    output_type: Annotated[
-        TrafficOutputType,
-        typer.Option(
-            "--output",
-            "-o",
-            help="The output type the traffic data is converted into",
-        ),
-    ] = TrafficOutputType.CONSOLE,
+    input_file: InputFileArgument,
+    output_type: OutputTypeOption = OutputTypeDefault,
     version: VersionOption = VersionDefault,
     logging_level: LoggingLevelOption = LoggingLevelDefault,
 ) -> None:
     """
-    Convert some network traffic from one type to another
+    Convert network traffic data from one type to another
     """
-    logger.debug(f"Start command traffic_convert with config: {get_config().to_json()}")
-    logger.error("This function is not implemented yet")
-    logger.debug("End command traffic_convert")
+    Commands.convert(traffic_inputs, input_file, traffic_outputs, output_type)

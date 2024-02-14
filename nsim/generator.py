@@ -5,8 +5,11 @@ from collections.abc import Callable
 
 import typer
 
-from .util import Json, Connectivity
+from .util import Json, Connectivity, select, get_file_path_extension
+from .input import InputType
 from .logger import logger
+from .topology.inputs import topology_inputs
+from .topology.models.node import Node
 
 
 TInputType = TypeVar("TInputType")
@@ -22,7 +25,7 @@ class Generator(Generic[TGeneratorType], metaclass=ABCMeta):
         input_text: str,
         validate_text: str,
         parse: Callable[[str], TInputType],
-        validate: Callable[[TInputType], bool],
+        validate: Callable[[TInputType], bool] = lambda _: True,
     ) -> TInputType:
         logger.debug(f"Collecting input for `{variable_name}`")
 
@@ -90,9 +93,9 @@ class Generator(Generic[TGeneratorType], metaclass=ABCMeta):
         name = self._get_input(
             "name",
             "the name",
-            "a string with length > 0 and <= 255",
+            "a string with length > 0",
             str,
-            lambda s: len(s) > 0 and len(s) <= 255,
+            lambda s: len(s) > 0,
         )
         logger.debug(f"Set name to {name}")
         return name
@@ -101,9 +104,9 @@ class Generator(Generic[TGeneratorType], metaclass=ABCMeta):
         number_of_nodes = self._get_input(
             "number_of_nodes",
             "the number of nodes",
-            "a valid integer with value >= 0 and < 1000",
+            "a valid integer with value >= 0",
             int,
-            lambda n: n >= 0 and n < 1000,
+            lambda n: n >= 0,
         )
         logger.debug(f"Set number_of_nodes to {number_of_nodes}")
         return number_of_nodes
@@ -118,6 +121,35 @@ class Generator(Generic[TGeneratorType], metaclass=ABCMeta):
         )
         logger.debug(f"Set connectivity to {connectivity}")
         return connectivity
+
+    def _get_input_node(self) -> Node:
+        def to_node(file_path: str) -> Node:
+            i = select(
+                "input",
+                topology_inputs,
+                InputType(get_file_path_extension(file_path)),
+            )
+            return i.run_super(file_path)
+
+        node = self._get_input(
+            "topology",
+            "the topology file path",
+            "a valid file path including extension",
+            to_node,
+        )
+        logger.debug(f"Set topology to {node}")
+        return node
+
+    def _get_input_duration(self) -> float:
+        duration = self._get_input(
+            "duration",
+            "the duration in simulation seconds",
+            "a valid float with value >= 0",
+            float,
+            lambda n: n >= 0,
+        )
+        logger.debug(f"Set duration to {duration}")
+        return duration
 
     def run_super(self, generator_options: str | None) -> TGeneratorType:
         self.generator_options = generator_options
