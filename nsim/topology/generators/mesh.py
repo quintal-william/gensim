@@ -17,7 +17,7 @@ class MeshTopologyGenerator(Generator[Node]):
 
         topology = Topology(name)
         for i in range(number_of_nodes):
-            leaf = Leaf(f"{name}-{i}", LeafType.HOST)
+            leaf = Leaf(f"{name}_{i}", LeafType.HOST)
             for node in topology.get_nodes():
                 leaf.connect(node, connectivity)
             topology.add_node(leaf)

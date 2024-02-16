@@ -36,6 +36,8 @@ class Node(Model):
                 25000000000,  # 25GBASE-T, 25 Gbps, increasingly adopted in data centers
                 40000000000,  # 40GBASE-T, 40 Gbps, used in high-speed backbones of data center networks
                 100000000000,  # 100GBASE-T, 100 Gbps, used in large data centers and internet backbones
+                200000000000,  # 200GBASE-T, 200 Gbps, used in cloud / high-performance computing data centers
+                400000000000,  # 400GBASE-T, 400 Gbps
             ]
             bandwidth = random.choice(bandwidths)
 

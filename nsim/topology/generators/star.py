@@ -16,10 +16,10 @@ class StarTopologyGenerator(Generator[Node]):
         connectivity = self._get_input_connectivity()
 
         topology = Topology(name)
-        center = Leaf(f"{name}-center", LeafType.SWITCH)
+        center = Leaf(f"{name}_center", LeafType.SWITCH)
         topology.add_node(center)
         for i in range(number_of_nodes):
-            leaf = Leaf(f"{name}-{i}", LeafType.HOST)
+            leaf = Leaf(f"{name}_{i}", LeafType.HOST)
             center.connect(leaf, connectivity)
             topology.add_node(leaf)
 
